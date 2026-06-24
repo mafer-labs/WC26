@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Optimized for iPhone 12: viewport-fit=cover handles the notch and home indicator -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#10b981">
+  <title>WC26 Dashboard</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Trophy.svg/192px-Trophy.svg.png">
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Vue.js for reactivity -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  
+  <style>
+    body {
+      background-color: #f3f4f6;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hide scrollbars for a cleaner app feel */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+  <div id="app" class="flex flex-col h-screen overflow-hidden">
+    
+    <!-- iPhone Safe Area Header -->
+    <header class="bg-emerald-600 text-white p-4 shadow-md sticky top-0 z-10" style="padding-top: max(1rem, env(safe-area-inset-top));">
+      <h1 class="text-xl font-bold text-center">🏆 World Cup 2026</h1>
+    </header>
+
+    <!-- Scrollable Main Content -->
+    <main class="flex-1 overflow-y-auto hide-scrollbar p-4 pb-32">
+      
+      <!-- MATCHES TAB -->
+      <div v-show="activeTab === 'matches'" class="space-y-4 fade-in">
+        <h2 class="text-lg font-bold text-gray-700 mb-2">Next Fixtures</h2>
+        <div v-for="match in matches" :key="match.id" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+          <div class="flex flex-col items-center w-1/3">
+            <span class="font-bold text-center">{{ match.home }}</span>
+          </div>
+          <div class="flex flex-col items-center w-1/3 text-xs text-gray-500">
+            <span class="font-bold text-sm text-gray-800">{{ match.time }}</span>
+            <span class="bg-gray-100 px-2 py-1 rounded mt-1">{{ match.date }}</span>
+          </div>
+          <div class="flex flex-col items-center w-1/3">
+            <span class="font-bold text-center">{{ match.away }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS TAB -->
+      <div v-show="activeTab === 'stats'" class="space-y-4">
+        <h2 class="text-lg font-bold text-gray-700 mb-2">Historical Records</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div v-for="(stat, index) in stats" :key="index" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+            <i :class="stat.icon" class="text-2xl text-emerald-500 mb-2"></i>
+            <span class="text-xs text-gray-500 uppercase font-bold">{{ stat.label }}</span>
+            <span class="font-bold text-gray-800 mt-1">{{ stat.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FACTS TAB -->
+      <div v-show="activeTab === 'facts'" class="space-y-4">
+        <h2 class="text-lg font-bold text-gray-700 mb-2">Did You Know?</h2>
+        <div v-for="(fact, index) in facts" :key="index" class="bg-white p-4 rounded-xl shadow-sm border border-l-4 border-emerald-500 flex items-start space-x-3">
+          <i class="fas fa-lightbulb text-amber-400 mt-1"></i>
+          <p class="text-sm text-gray-700 leading-relaxed">{{ fact }}</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full flex justify-around pt-3 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-20" style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));">
+      <button @click="activeTab = 'matches'" :class="{'text-emerald-600': activeTab === 'matches', 'text-gray-400': activeTab !== 'matches'}" class="flex flex-col items-center w-1/3 transition-colors">
+        <i class="fas fa-calendar-alt text-xl mb-1"></i>
+        <span class="text-xs font-medium">Matches</span>
+      </button>
+      <button @click="activeTab = 'stats'" :class="{'text-emerald-600': activeTab === 'stats', 'text-gray-400': activeTab !== 'stats'}" class="flex flex-col items-center w-1/3 transition-colors">
+        <i class="fas fa-chart-bar text-xl mb-1"></i>
+        <span class="text-xs font-medium">Stats</span>
+      </button>
+      <button @click="activeTab = 'facts'" :class="{'text-emerald-600': activeTab === 'facts', 'text-gray-400': activeTab !== 'facts'}" class="flex flex-col items-center w-1/3 transition-colors">
+        <i class="fas fa-book-open text-xl mb-1"></i>
+        <span class="text-xs font-medium">Facts</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    createApp({
+      setup() {
+        const activeTab = ref('matches');
+        
+        // 2026 World Cup Dynamic Data
+        const matches = ref([
+          { id: 1, home: 'Switzerland', away: 'Canada', date: 'Jun 24', time: '15:00 ET' },
+          { id: 2, home: 'Morocco', away: 'Haiti', date: 'Jun 24', time: '18:00 ET' },
+          { id: 3, home: 'Scotland', away: 'Brazil', date: 'Jun 24', time: '18:00 ET' },
+          { id: 4, home: 'South Africa', away: 'South Korea', date: 'Jun 24', time: '21:00 ET' },
+          { id: 5, home: 'Ecuador', away: 'Germany', date: 'Jun 25', time: '16:00 ET' },
+        ]);
+
+        const stats = ref([
+          { icon: 'fas fa-trophy', label: 'Most Titles', value: 'Brazil (5)' },
+          { icon: 'fas fa-futbol', label: 'Top Scorer', value: 'M. Klose (16)' },
+          { icon: 'fas fa-stopwatch', label: 'Fastest Goal', value: '11 Seconds' },
+          { icon: 'fas fa-users', label: 'Record Crowd', value: '173,850' }
+        ]);
+
+        const facts = ref([
+          "The 2026 World Cup is the first in history to feature 48 teams, expanded from the traditional 32.",
+          "It is the first World Cup to be hosted across three different nations: the USA, Mexico, and Canada.",
+          "Brazil’s Pelé is the youngest player to ever score in a World Cup at just 17 years and 239 days old in 1958.",
+          "The original World Cup trophy was stolen in London in 1966 and found days later in a bush by a dog named Pickles.",
+          "Brazil is the only nation to have successfully qualified for and participated in every single World Cup tournament since 1930."
+        ]);
+
+        return { activeTab, matches, stats, facts };
+      }
+    }).mount('#app');
+
+    // Progressive Web App Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('ServiceWorker registered:', reg.scope);
+        }).catch(err => {
+          console.log('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
